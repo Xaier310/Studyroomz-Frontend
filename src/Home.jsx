@@ -39,6 +39,9 @@ const Home = () => {
   var history = useHistory();
   let capacity = 15;
 
+  console.log("hi frontend");
+  console.log("hi frontend");
+
   function randomStr() {
     var ans = "";
     const arr =
