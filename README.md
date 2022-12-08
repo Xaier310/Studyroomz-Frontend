@@ -1,70 +1,66 @@
-# Getting Started with Create React App
+# StudyRoomz
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Join the largest global student community online and say goodbye to lack of motivation. Create your own Room and share room-Id with others or join a already created room.
 
-## Available Scripts
+Joining a virtual study room is just like attending a Video Call, where instead of talking all the participants on the call are studying and motivating each other to do the same.
 
-In the project directory, you can run:
+#### Website : https://studyroomz.netlify.app/
 
-### `npm start`
+## Run Locally
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Clone the project
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```bash
+  git clone https://github.com/Xaier310/Study-Rooms.git
+```
 
-### `npm test`
+Go to the project directory
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+  cd Study-Rooms
+```
 
-### `npm run build`
+Install dependencies in backend
+```bash
+  cd server
+  npm install
+```
+Start the Server
+```bash
+  node index.js
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Install dependencies in frontend
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+  cd client
+  npm install
+  npm start
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Technologies used
+<ul>
+  <li>Reactjs</li>
+  <li>Nodejs</li>
+  <li>Expressjs</li>
+  <li>OAuth0</li>
+</ul>
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Screenshots
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+![App Screenshot](https://raw.githubusercontent.com/Xaier310/NewsArea.github.io/main/public/Screenshot%202022-01-03%20201203.png)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+![App Screenshot](https://raw.githubusercontent.com/Xaier310/NewsArea.github.io/main/public/Screenshot%202022-01-03%20201251.png)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+![App Screenshot](https://raw.githubusercontent.com/Xaier310/NewsArea.github.io/main/public/Screenshot%202022-01-03%20201325.png)
 
-## Learn More
+![App Screenshot](https://raw.githubusercontent.com/Xaier310/NewsArea.github.io/main/public/Screenshot%202022-01-03%20201306.png)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Mobile View
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+![App Screenshot](https://raw.githubusercontent.com/Xaier310/NewsArea.github.io/main/public/Screenshot%202022-01-03%20201403.png)
 
-### Code Splitting
+![App Screenshot](https://raw.githubusercontent.com/Xaier310/NewsArea.github.io/main/public/Screenshot%202022-01-03%20201424.png)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+![App Screenshot](https://raw.githubusercontent.com/Xaier310/NewsArea.github.io/main/public/Screenshot%202022-01-03%20201439.png)
