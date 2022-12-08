@@ -1,0 +1,154 @@
+//normal text
+@import url('https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Roboto:wght@300&display=swap');
+
+// $first-color:#9A0680;
+// $first-color:#05bfdc;
+$first-color:#02a7c0e3;
+$text-first-color:#000000;
+$cards-first-color:#485461;
+$cards-second-color:#191919;
+$gradient-first-color: #B958A5;
+$gradient-second-color: #4C3F91;
+$text-second-color:grey;
+$transition: all linear 300ms;
+$sendMessageInputColor:#DCDCDC;
+$what-app-color:#daf3c4;
+$popup-bg:rgba(0,0,0,0.5);
+
+
+@mixin modernScrollbar(){
+    ::-webkit-scrollbar {
+        width: 4px;
+      }
+      /* Track */
+      ::-webkit-scrollbar-track {
+        background: transparent; 
+        padding: 20px;
+      }    
+      /* Handle */
+      ::-webkit-scrollbar-thumb {
+        background: #888; 
+        border-radius: 4px;
+      }
+      /* Handle on hover */
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgb(92, 92, 92); 
+      }
+}
+
+@mixin NAVBAR(){
+    .navbar{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    
+        &-child-1{
+            display: flex;
+            justify-content: space-between;
+            flex: 0.5;
+            align-items: center;
+            margin-right: 2rem;
+        }
+        ul{
+           flex: 1;
+           justify-self: center;
+        }
+        &-child-2{
+            flex: 1.5;  //1.2
+            display: flex;
+            justify-content: end;
+        }
+        &-logo{
+            cursor: pointer;
+            flex:1;
+            display: flex;
+            align-items: center;
+            &-text{
+                color:$text-first-color;
+                font-size: 2.5rem;
+                cursor: pointer;
+            }
+            &-dot{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 2rem; 
+                width: 2rem;
+                border-radius: 50%;
+                background-image: linear-gradient(to top right, $first-color, $gradient-second-color);
+                margin-right: 4px;
+            }
+        }
+    
+        &-items{
+            display: flex;
+            flex: 2.2;
+            justify-content: space-around;
+        }
+    
+        &-item-cc{
+        display: flex;
+        align-items: center;
+        font-weight: 700;
+         a{  
+             font-size: 1.5rem;
+             padding: 0.5rem;
+             color: $text-second-color;
+             cursor: pointer;
+             &:hover{
+                 padding: 0rem;
+                 color:$text-first-color;
+                 transition: $transition;
+                 font-size: 1.8rem;
+             }
+         }
+        }
+    
+        &-button{
+            color: $first-color;
+            border: solid 1px $first-color;
+            background-color: #fff;
+            font-size: 1.5rem;
+            font-weight: 900;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5rem;
+            position: relative;
+            transition: $transition;
+            z-index: 1;
+            overflow: hidden;
+            cursor: pointer;
+            &:hover{
+                &::before{
+                    left: 0;
+                    transition: $transition;
+                }
+                color: white;
+                border: none;
+            }
+            &::before{
+                content: "";
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                left: -100%;
+                top: 0;
+                border-radius: 5rem;
+                background-color: $first-color;
+                z-index: -1;
+            }
+        }
+    }
+}
+@mixin BasicProp(){
+    li{
+        list-style: none;
+    }    
+    a{
+        text-decoration: none;
+        color: $text-first-color;
+    }
+    padding:2rem 6rem 0;
+}

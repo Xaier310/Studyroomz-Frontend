@@ -1,0 +1,167 @@
+.footer-wrapper li{
+  list-style: none;
+}    
+.footer-wrapper a{
+  text-decoration: none;
+  color: white;
+}
+.footer-wrapper {
+  background-color: #485461;
+  background-image: linear-gradient(315deg, #485461 0%, #28313b 74%);
+  border-radius: 1rem 1rem 0 0;
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  padding: 3em !important ;
+  /* width: 100%; */
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-wrapper h1 {
+  /* border-bottom: solid 0.2em; */
+  margin-bottom: 0.3em;
+  color: #fff !important;
+}
+.footer-wrapper .r1 {
+  display: flex;
+  /* grid-template-columns: repeat(2, 1fr); */
+  gap: 2em;
+  flex-wrap: wrap;
+  grid-area: 1/1 / span 4 / span 4;
+}
+.footer-wrapper .r1 h3 {
+  color: #fff !important;
+}
+.footer-wrapper .r2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-area: 5/1 / span 1 / span 4;
+}
+.footer-wrapper .r2 p {
+  font-weight: 600;
+  color: #fff !important;
+}
+.footer-wrapper .r1 {
+  align-items: baseline;
+  color: #fff !important;
+}
+.footer-wrapper .contactus-footer {
+  display: flex;
+  flex-direction: column;
+  flex: 2;
+}
+.footer-wrapper form {
+  display: flex;
+  /* grid-template-row: repeat(3, 1fr); */
+  flex-direction: column;
+}
+.footer-wrapper .links {
+  flex: 1;
+}
+.footer-wrapper .links ul {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1em;
+  justify-content: space-between;
+}
+.footer-wrapper .links li {
+  display: flex;
+  flex-direction: column;
+  text-transform: capitalize;
+  font-size: 1.7em;
+  letter-spacing: 0.05em;
+  line-height: 2em;
+  color: #fff !important;
+}
+
+.footer-wrapper .username {
+  font-weight: bold;
+  width: 15.5rem;
+  margin: 0 0 1.25rem;
+  height: 3.188rem;
+  padding: 0.375rem 0.938rem;
+  border-radius: 0.313rem;
+  outline: none;
+  border: none;
+  background: #f6f7f9;
+  color: #748194;
+  font-size: 1.35rem;
+}
+@media screen and(max-width: 420px) {
+  .footer-wrapper textarea {
+    width: 15rem !important;
+  }
+}
+
+.footer-wrapper textarea {
+  font-weight: bold;
+  margin: 0 0 1.25rem;
+  padding: 0.375rem 0.938rem;
+  border-radius: 0.313rem;
+  outline: none;
+  border: none;
+  background: #f6f7f9;
+  color: #748194;
+  font-size: 1.35rem;
+  width: 80%;
+  height: 5rem !important;
+  grid-area: 3/1 / span 4 / span 1;
+  resize: none;
+}
+
+.footer-wrapper .btn {
+  font-weight: bold;
+  width: 14.375rem;
+  margin: 0 0 1.25rem;
+  height: 2.813rem;
+  padding: 0.375rem 0.938rem;
+  border-radius: 0.313rem;
+  outline: none;
+  border: none;
+  /* background: #ee9ba3; */
+  background: #05bfdc; 
+  color: white;
+  font-size: 1.35rem;
+}
+.footer-wrapper li a i{
+  color: white;
+}
+.footer-wrapper li a{
+  color: white !important;
+}
+.footer-wrapper li a:hover i{
+  color: #03a2bb !important;
+}
+.footer-wrapper a:hover{
+  color: #03a2bb !important;
+}
+.footer-wrapper .btn:hover{
+  background: #03a2bb !important; 
+  /* #f08690; */
+  cursor: pointer !important;
+}
+.footer-wrapper .signup1 {
+  color: #748194;
+  font-size: 1.875rem;
+  text-align: center;
+}
+
+@media screen and(max-width: 710px) {
+  .footer-wrapper {
+    padding: 1em;
+  }
+}
+
+.footer-wrapper h1:after {
+  content: ""; /* This is necessary for the pseudo element to work. */
+  display: block; /* This will put the pseudo element on its own line. */
+  /* margin: 0 auto; This will center the border. */
+  width: 50%; /* Change this to whatever width you want. */
+  padding-top: 10px; /* This creates some space between the element and the border. */
+  border-bottom: 2px solid #fff; /* This creates the border. Replace black with whatever color you want. */
+}
+
+#copyright{
+  margin-top: 1rem;
+}
