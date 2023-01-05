@@ -1,8 +1,13 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion"
-import firstImg from "./images/2.jpg";
-import secondImg from "./images/1.jpg";
+
+import firstImg from "./images/1_2.png";
+// import firstImg from "./images/1_2 original.svg";
+
+import secondImg from "./images/2_2.png";
+// import secondImg from "./images/2_2 original.svg";
+
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Navbar from "./Navbar";
@@ -36,8 +41,9 @@ const Home = () => {
   const [noOfPartInCR, setNoOfPartInCR] = useState([0, 0, 0, 0, 0]);
   const [isPopup, setIsPopup] = useState(false);
   const { user, isAuthenticated, isLoading } = useAuth0();
-  var history = useHistory();
-  let capacity = 15;
+  const history = useHistory();
+  const capacity = 50;
+  const roomsPerTopic = 10;
 
   function randomStr() {
     var ans = "";
@@ -163,80 +169,82 @@ const Home = () => {
 
 
   const popupItems = [];
-  for (let i = 0; i < 5; i++) {
-    if (isML)
-      popupItems.push(
-        isAuthenticated ? (
-          <a
-            className="no-of-rooms-row-room-cc"
-            onClick={() => {
-              joinCustomRoom(i + 1);
-              noOfPartInCR[i] <= capacity && setIsML(false);
-            }}
-          >
-            {noOfPartInCR[i]}
-          </a>
-        ) : (
-          <a
-            className="no-of-rooms-row-room-cc"
-            onClick={() => {
-              alertFnForPopup();
-            }}
-          >
-            {noOfPartInCR[i]}
-          </a>
-        )
-      );
-    // participantsInCR.MlRoom[`mlroom${i+1}`]
-    else if (isWD)
-      popupItems.push(
-        isAuthenticated ? (
-          <a
-            className="no-of-rooms-row-room-cc"
-            onClick={() => {
-              joinCustomRoom(i + 1);
-              noOfPartInCR[i] <= capacity && setIsWD(false);
-            }}
-          >
-            {noOfPartInCR[i]}
-          </a>
-        ) : (
-          <a
-            className="no-of-rooms-row-room-cc"
-            onClick={() => {
-              alertFnForPopup();
-            }}
-          >
-            {noOfPartInCR[i]}
-          </a>
-        )
-      );
-    // participantsInCR.WebRoom[`webroom${i+1}`]
-    else if (isAD)
-      popupItems.push(
-        isAuthenticated ? (
-          <a
-            className="no-of-rooms-row-room-cc"
-            onClick={() => {
-              joinCustomRoom(i + 1);
-              noOfPartInCR[i] <= capacity && setIsAD(false);
-            }}
-          >
-            {noOfPartInCR[i]}
-          </a>
-        ) : (
-          <a
-            className="no-of-rooms-row-room-cc"
-            onClick={() => {
-              alertFnForPopup();
-            }}
-          >
-            {noOfPartInCR[i]}
-          </a>
-        )
-      );
-    // participantsInCR.AndroidRoom[`androidroom${i+1}`]
-  }
+  // useEffect(()=>{
+    for (let i = 0; i < roomsPerTopic; i++) {
+      if (isML)
+        popupItems.push(
+          isAuthenticated ? (
+            <a
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                joinCustomRoom(i + 1);
+                noOfPartInCR[i] <= capacity && setIsML(false);
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          ) : (
+            <a
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                alertFnForPopup();
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          )
+        );
+      // participantsInCR.MlRoom[`mlroom${i+1}`]
+      else if (isWD)
+        popupItems.push(
+          isAuthenticated ? (
+            <a
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                joinCustomRoom(i + 1);
+                noOfPartInCR[i] <= capacity && setIsWD(false);
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          ) : (
+            <a
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                alertFnForPopup();
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          )
+        );
+      // participantsInCR.WebRoom[`webroom${i+1}`]
+      else if (isAD)
+        popupItems.push(
+          isAuthenticated ? (
+            <a
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                joinCustomRoom(i + 1);
+                noOfPartInCR[i] <= capacity && setIsAD(false);
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          ) : (
+            <a
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                alertFnForPopup();
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          )
+        );
+      // participantsInCR.AndroidRoom[`androidroom${i+1}`]
+    }
+  // },[isML, isAD, isWD]);
 
   return (
     <>
@@ -390,12 +398,12 @@ const Home = () => {
                     }}
                    className="no-of-rooms-row">
                     {popupItems}
-                    <span
+                    {/* <span
                       onClick={(e)=>{isAuthenticated ? createRoom(e) : alertFnForPopup()}}
                       className="no-of-rooms-row-room-cc"
                     >
                       <i className="fa fa-plus" aria-hidden="true"></i>
-                    </span>
+                    </span> */}
                     <div className="no-of-rooms-row-closeButton">
                       <i
                         className="fas fa-times"
@@ -429,7 +437,7 @@ const Home = () => {
                 Don't worry. We have pre-built rooms for different topics - Web
                 development, App development, Machine Learning. Choose different
                 rooms on the basis of how many participants are active. All
-                rooms are limited to 15 participants to increase interaction
+                rooms are limited to 50 participants to increase interaction
               </p>
               </div>
               <div className="main-part-2-right-cards" data-aos="fade-up" data-aos-offset="300">

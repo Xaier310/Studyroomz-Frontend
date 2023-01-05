@@ -1,4 +1,4 @@
-import React, { Component, useContext, useEffect, useState } from "react";
+import React, { Component, useContext, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "./Navbar";
 import AOS from "aos";
@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useAuth0 } from "@auth0/auth0-react";
 import { AppContext } from "./App";
 import { useHistory } from "react-router-dom";
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+
 
 function RealChat() {
   const { user, isAuthenticated, isLoading } = useAuth0();
@@ -26,6 +28,35 @@ function RealChat() {
   const [isShowUsers,setIsShowUsers] = useState(false);
   var [LocalallParticipants, setLocalallParticipants] = useState([]);
   let history = useHistory();
+  const fileRef = useRef();
+
+
+
+  //upload files*****************************************************************************
+
+  function selectFile(){
+    fileRef.current.click();
+  }
+
+  function fileSelected(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () =>{
+      const data = reader.result?.toString();
+      console.log("upload on frontend .... ",data);
+      socket.emit("upload",{data});
+    };
+  }
+
+  useEffect(()=>{
+    socket.on("uploaded",(data)=>{
+      console.log("uploaded : ",data);
+    })
+  },[socket]);
+
+
 
   useEffect(() => {
     AOS.init({ duration: 1300,disable: window.innerWidth < 825 });
@@ -54,6 +85,7 @@ function RealChat() {
     });
   }, [allParticipants]);
   
+
 
 
   function getCurrTime() {
@@ -129,7 +161,6 @@ function RealChat() {
 
 
   useEffect(()=>{
-    // console.log("checking... "+curRoomId+"  "+sessionStorage.getItem("roomid"));
     setCurRoomId(sessionStorage.getItem("roomid"));
     if (curUser && curRoomId) {
       var obj = {
@@ -142,7 +173,6 @@ function RealChat() {
       socket.emit("addUser", curUser);
       history.push("/chat-room/"+sessionStorage.getItem("roomid"));
     }
-    // console.log("checking2... "+curRoomId+"  "+sessionStorage.getItem("roomid"));
   },[curRoomId]);
 
 
@@ -350,9 +380,10 @@ window.onpopstate = ActionsOnExit;
               )}
             </div>
             <div className="main-part-right-msgbox">
-              <span className="main-part-right-msgbox-file">
-                <input type="file" disabled />
+              <span className="main-part-right-msgbox-file" >
+                <input onChange={fileSelected} ref={fileRef} type="file" />
               </span>
+              
               <input
                 id="inputMsg"
                 value={currMsg}
