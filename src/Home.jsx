@@ -56,20 +56,9 @@ const Home = () => {
     return ans+f;
   }
 
-  // var options = {
-  //   method: 'GET',
-  //   url: 'https://dev-5z6hgz09.us.auth0.com/api/v2/users',
-  //   params: {q: 'email.raw:"xaier310@gmail.com"', search_engine: 'v2'},
-  //   headers: {authorization: 'Bearer ACCESS_TOKEN'}
-  // };
-  
-  // axios.request(options).then(function (response) {
-  //   console.log("user data : ",response.data);
-  // }).catch(function (error) {
-  //   console.error(error);
-  // });
-
-
+  useEffect(()=>{
+    socket.emit("new emit");
+  },[])
 
   const getCustomStats = async (str) => {
     await socket.emit("custom_stats", str);
