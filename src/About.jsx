@@ -6,10 +6,12 @@ import AOS from "aos";
 import { useEffect } from "react";
 
 export default function About() {
+  
   useEffect(() => {
     AOS.init({ duration: 1300,disable: window.innerWidth < 825 });
     AOS.refresh();
   }, []);
+
   return (
   <div className="About-page">
   <div className="Home">

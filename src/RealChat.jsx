@@ -6,89 +6,92 @@ import axios from 'axios';
 import { useAuth0 } from "@auth0/auth0-react";
 import { AppContext } from "./App";
 import { useHistory } from "react-router-dom";
-import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { Picker, NimblePicker } from "emoji-mart"
+import "emoji-mart/css/emoji-mart.css"
+import data from 'emoji-mart/data/google.json'
 
+import emoji from "./images/emoji.png"
+import upload from "./images/upload.png"
+import send from "./images/send.png"
 
 function RealChat() {
   const { user, isAuthenticated, isLoading } = useAuth0();
   const {
     socket,
     curUser,
-    curRoomId,
-    setCurRoomId,
-    allParticipants,
-    setAllParticipants,
-    msgList, 
-    setMsgList,
-    sets, 
-    setSets
+    curRoomId, setCurRoomId,
+    msgList, setMsgList,
+    computationLoading, setComputationLoading
   } = useContext(AppContext);
 
-  const [currMsg, setCurrMsg] = useState("");
-  const [isShowUsers,setIsShowUsers] = useState(false);
-  var [LocalallParticipants, setLocalallParticipants] = useState([]);
   let history = useHistory();
   const fileRef = useRef();
+  const curMsgRef = useRef();
+  const [currMsg, setCurrMsg] = useState("");
+  const [isShowUsers,setIsShowUsers] = useState(false);
+  const [chatUsers, setChatUsers] = useState([]);
+  const [showEmojiPicker, setShowEmojiPicker ] = useState(false);
 
 
-
-  //upload files*****************************************************************************
-
-  function selectFile(){
-    fileRef.current.click();
-  }
-
-  function fileSelected(e){
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () =>{
-      const data = reader.result?.toString();
-      console.log("upload on frontend .... ",data);
-      socket.emit("upload",{data});
-    };
-  }
+  
+/*****************************UseEffect********************************** */
 
   useEffect(()=>{
-    socket.on("uploaded",(data)=>{
-      console.log("uploaded : ",data);
+    socket.on("give_room_users", ({users}) => {
+      setChatUsers([...users]);
+    });
+    return () => socket.off("give_room_users");
+  },[]);
+
+  useEffect(()=>{
+    socket.emit("give_room_users",{roomId:curRoomId});
+  },[curRoomId]);  
+  
+  useEffect(()=>{
+    if(!curRoomId) return;
+    const abortController = new AbortController()
+    axios.get(`${process.env.REACT_APP_BackendAPI}api/studyroomz`,{ params: { roomid: curRoomId } },
+    {
+      signal: abortController.signal
     })
-  },[socket]);
+    .then((response)=>{
+      setMsgList([...response.data]);
+      console.log(response.data);
+      var objDiv = document.querySelector(".main-part-right-dm-p");
+      var height = objDiv?.scrollHeight;
+      objDiv?.scrollBy(0, height);
+    })
+    .catch(error => {
+      if (error.name === 'AbortError') return; 
+      throw error
+    });
+    return () => abortController.abort();
+  },[curRoomId]);
 
-
+  useEffect(()=>{
+    setCurRoomId(sessionStorage.getItem("roomid"));
+    if (!(curUser && curRoomId)) return;
+    console.log("useffect join emits...");
+    socket.emit("join_room", {roomId:curRoomId, userInfo:curUser, isOldRoom:false },({ error })=>{
+      if(error)  return;
+    });
+    history.push("/chat-room/"+sessionStorage.getItem("roomid"));
+  },[curRoomId, curUser]);
 
   useEffect(() => {
-    AOS.init({ duration: 1300,disable: window.innerWidth < 825 });
-    AOS.refresh();
+    socket.on("receive_message", (message) => {
+      console.log("msg received...");
+      setMsgList((msgList) => [...msgList, message]);
+      var objDiv = document.querySelector(".main-part-right-dm-p");
+      var height = objDiv?.scrollHeight;
+      objDiv?.scrollBy(0, height);
+    });
+    return ()=>socket.off("receive_message");
   }, []);
 
-  useEffect(() => {
-    socket.emit("giveUsers", curRoomId);
-    socket.on("getUsers", (obj) => {
-      setAllParticipants(obj);
-    });
-  }, [socket,curRoomId]);
 
-  useEffect(() => {
-    socket.emit("give_roomUsers", curRoomId);
-    socket.on("get_roomUsers", (users) => {
-      var tempArray = [];
-      for (let i = 0; i < users.length; i++) {
-        for (let j = 0; j < allParticipants.length; j++) {
-          if (allParticipants[j].socketid === users[i]) {
-            tempArray.push(allParticipants[j].user);
-          }
-        }
-      }
-      setLocalallParticipants(tempArray);
-    });
-  }, [allParticipants]);
-  
-
-
-
-  function getCurrTime() {
+  /******************************Fucntions************************************ */
+  const getCurrTime = () => {
     let date = new Date(Date.now());
     var hours = date.getHours();
     var minutes = date.getMinutes();
@@ -109,108 +112,91 @@ function RealChat() {
   
   const addMsg = async (e) => {
     e.preventDefault();
-    var inputMsg = "";
-    if (document.getElementById("inputMsg"))
-        inputMsg = document.getElementById("inputMsg").value;
-    if (user && inputMsg !== "") {
-      let message = {
-        key: msgList.length + 1,
-        msg: inputMsg,
-        roomId: curRoomId,
-        time: getCurrTime(),
-        nickname: user.nickname,
-        username: user.email,
-      };
-      socket.emit("send_message", message);
-
-      axios.post(`${process.env.REACT_APP_BackendAPI}api/studyroomz`,{
-        msg: inputMsg,
-        roomId: curRoomId,
-        _time : Date.now().toString(),
-        username: user.email,
-        nickname: user.nickname,
-        time : getCurrTime()
-      },(err,res)=>{
-        if(err) console.log(err);
-        else console.log("Msg Successfully inserted frontend",res);
-      });
-      setCurrMsg("");
-      let ele = document.getElementById("inputMsg");
-      if (ele) ele.focus();
-    } else {
-      console.log("Warning! Something went wrong ");
-    }
+    console.log("curMSg ",curMsgRef.current.value);
+    var inputMsg = curMsgRef.current.value;
+    if (!(user && inputMsg && inputMsg !== "")) return;
+    let message = {
+      msg: inputMsg,
+      roomId: curRoomId,
+      _time : Date.now().toString(),
+      username: user.email,
+      name: user.name,
+      time : getCurrTime()
+    };
+    socket.emit("send_message", message);
+    axios.post(`${process.env.REACT_APP_BackendAPI}api/studyroomz`,message,(err,res)=>{
+      if(err) console.log(err);
+      else console.log("Msg Successfully inserted frontend",res);
+    });
+    curMsgRef.current.value = "";
+    curMsgRef.current.focus();
   };
 
-  useEffect(()=>{
-    const abortController = new AbortController()
-      if(curRoomId){
-        axios.get(`${process.env.REACT_APP_BackendAPI}api/studyroomz`,{ params: { roomid: curRoomId } },{
-          signal: abortController.signal
-        }).then((response)=>{
-          setMsgList((msgList) => [...response.data]);
-        }).catch(error => {
-          if (error.name === 'AbortError') return; 
-          throw error
-        });
-      }
-      return () => {
-        abortController.abort();
-      }
-  },[curRoomId]);
 
+  //upload files
+  // function selectFile(){
+    // fileRef.current.click();
+  // }
 
-  useEffect(()=>{
-    setCurRoomId(sessionStorage.getItem("roomid"));
-    if (curUser && curRoomId) {
-      var obj = {
-        roomId: curRoomId,
-        nickname: curUser.nickname,
-        username: curUser.email,
-        type: "newRoom",
-      };
-      socket.emit("join_room", obj);
-      socket.emit("addUser", curUser);
-      history.push("/chat-room/"+sessionStorage.getItem("roomid"));
-    }
-  },[curRoomId]);
-
-
-  useEffect(() => {
-      socket.off("receive_message").on("receive_message", (message) => {
-        console.log("msg added3..");
-          setMsgList((msgList) => [...msgList, message]);
-          var objDiv = document.querySelector(".main-part-right-dm-p");
-          var height = objDiv?.scrollHeight;
-          objDiv?.scrollBy(0, height);
-      });
-  }, []);
-
-const showUsers = ()=>{
-  var ele = document.querySelector(".users-button");
-  if(ele){
-    setIsShowUsers(!isShowUsers);
-    ele.classList.add("users-temp");
+  const fileSelected = (e) => {
+    // const file = e.target.files[0];
+    // if(!file) return;
+    // const reader = new FileReader();
+    // reader.readAsDataURL(file);
+    // reader.onload = () =>{
+    //   const data = reader.result?.toString();
+    //   console.log("upload on frontend .... ",data);
+    //   socket.emit("upload",{data});
+    // };
   }
-}
-window.addEventListener('resize', closePopup);
-function closePopup(){
-  setIsShowUsers(false);
-}
+  const showUsers = ()=>{
+    var ele = document.querySelector(".users-button");
+    if(ele){
+      setIsShowUsers(!isShowUsers);
+      ele.classList.add("users-temp");
+    }
+  }
 
-function ActionsOnExit(){
-  history.push("/home");
-  socket.emit("remove_me", curRoomId);
-  setCurRoomId("");
-  setMsgList([]);
-  sessionStorage.setItem("roomid","");
-}
+  const handleOnSelectEmoji = (e)=>{
+    curMsgRef.current.value += e.native;
+  }
 
-window.onpopstate = ActionsOnExit;
+  const ActionsOnExit = () => {
+    history.push("/home");
+    socket.emit("remove_me", curRoomId);
+    setCurRoomId("");
+    setMsgList([]);
+    sessionStorage.setItem("roomid","");
+  }
+
+  /********************Extra Stuff**************************** */
+
+  window.addEventListener('resize', closePopup);
+  function closePopup(){
+    setIsShowUsers(false);
+  }
+  window.onpopstate = ActionsOnExit;
+
+
+
+/************************TEST STUFF********************** */
+useEffect(()=>{
+  console.log("test useEffect...");
+  socket.on("test",()=>{
+    console.log("socket.on test...");
+  })
+  return () => socket.off("test");
+},[]);
+
+const testfn = (e) => {
+  console.log("testfn clicked...");
+  socket.emit("emit test",curRoomId);
+}
 
 
   return (
     <>
+    {/* <div onClick={testfn} style={{fontSize:"20px", background:"orange", width:"100px"}}>TEST</div> */}
       <div
         className="Chat"
         onKeyDown={(e) => {
@@ -249,9 +235,9 @@ window.onpopstate = ActionsOnExit;
             <i className="fas fa-angle-double-right"></i>
             </motion.span>
             }
-            </AnimatePresence>
+        </AnimatePresence>
 
-            <AnimatePresence>
+        <AnimatePresence>
           {isShowUsers &&
           <motion.div
           initial={{
@@ -276,13 +262,13 @@ window.onpopstate = ActionsOnExit;
            }
           }}
           className="showUsers main-part-left"
-          >
+        >
           <span className="users-temp users-button" onClick={showUsers}><i className="fas fa-angle-double-left"></i></span>
             <div className="main-part-left-profile">
               <div className="main-part-left-profile-img">
-                <img src={user.picture} alt="" />
+                <img src={user.picture} alt="" referrerpolicy="no-referrer" />
               </div>
-              <h4 className="main-part-left-profile-name">{user.nickname}</h4>
+              <h4 className="main-part-left-profile-name">{user.name}</h4>
               <span className="main-part-left-profile-name-setting">
                 <a
                   onClick={ActionsOnExit}
@@ -294,7 +280,7 @@ window.onpopstate = ActionsOnExit;
               </span>
             </div>
             <div className="main-part-left-participants">
-              {LocalallParticipants.map(
+              {chatUsers.map(
                 (user) =>
                   user.email !== curUser.email && (
                     <div className="main-part-left-participants-participant-cc">
@@ -302,9 +288,10 @@ window.onpopstate = ActionsOnExit;
                         className="main-part-left-participants-participant-cc-img"
                         src={user.picture}
                         alt=""
+                        referrerpolicy="no-referrer"
                       />
                       <h4 className="main-part-left-participants-participant-cc-name">
-                        {user.nickname}
+                        {user.name}
                       </h4>
                     </div>
                   )
@@ -313,14 +300,14 @@ window.onpopstate = ActionsOnExit;
 
           </motion.div>
           }
-          </AnimatePresence>
+        </AnimatePresence>
   
           <section className="main-part-left">
             <div className="main-part-left-profile">
               <div className="main-part-left-profile-img">
-                <img src={user.picture} alt="" />
+                <img src={user.picture} alt="" referrerpolicy="no-referrer" />
               </div>
-              <h4 className="main-part-left-profile-name">{user.nickname}</h4>
+              <h4 className="main-part-left-profile-name">{user.name}</h4>
               <span className="main-part-left-profile-name-setting">
                 <a
                   onClick={ActionsOnExit}
@@ -330,17 +317,18 @@ window.onpopstate = ActionsOnExit;
               </span>
             </div>
             <div className="main-part-left-participants">
-              {LocalallParticipants.map(
-                (user) =>
+              {chatUsers.map(
+                (user, ind) =>
                   user.email !== curUser.email && (
-                    <div className="main-part-left-participants-participant-cc">
+                    <div className="main-part-left-participants-participant-cc" key={ind}>
                       <img
                         className="main-part-left-participants-participant-cc-img"
                         src={user.picture}
                         alt=""
+                        referrerpolicy="no-referrer"
                       />
                       <h4 className="main-part-left-participants-participant-cc-name">
-                        {user.nickname}
+                        {user.name}
                       </h4>
                     </div>
                   )
@@ -349,12 +337,12 @@ window.onpopstate = ActionsOnExit;
           </section>
           <section className="main-part-right">
             <div className="main-part-right-dm-p">
-              {msgList&&msgList.map((msg) =>
+              {msgList&&msgList.map((msg, ind) =>
                 curUser.email === msg.username ? (
-                  <div className="main-part-right-dm">
+                  <div className="main-part-right-dm" key={ind}>
                     <div className="main-part-right-dm-msg myMsg" id="myMsg">
                       <p className="main-part-right-dm-msg-name">
-                        {msg.nickname}
+                        {msg.name}
                       </p>
                       <p className="main-part-right-dm-msg-text">{msg.msg}</p>
                       <span className="main-part-right-dm-msg-time">
@@ -364,10 +352,10 @@ window.onpopstate = ActionsOnExit;
                     <span></span>
                   </div>
                 ) : (
-                  <div className="main-part-right-dm" onClick={closePopup}>
+                  <div className="main-part-right-dm" onClick={closePopup} key={ind}>
                     <div className="main-part-right-dm-msg myMsg">
                       <p className="main-part-right-dm-msg-name">
-                        {msg.nickname}
+                        {msg.name}
                       </p>
                       <p className="main-part-right-dm-msg-text">{msg.msg}</p>
                       <span className="main-part-right-dm-msg-time">
@@ -380,27 +368,46 @@ window.onpopstate = ActionsOnExit;
               )}
             </div>
             <div className="main-part-right-msgbox">
-              <span className="main-part-right-msgbox-file" >
-                <input onChange={fileSelected} ref={fileRef} type="file" />
-              </span>
-              
-              <input
-                id="inputMsg"
-                value={currMsg}
-                onChange={(e) => {
-                  setCurrMsg(e.target.value);
-                }}
-                type="text"
-                autoComplete="off"
-                placeholder="Type a message"
-                className="main-part-right-msgbox-typemsg"
-              />
-              <span className="main-part-right-msgbox-sendbutton">
-                <i onClick={addMsg} className="fas fa-paper-plane"></i>
-              </span>
+              <div className="main-part-right-msgbox-typemsg" style={{position:"relative"}}>
+                  <input
+                    id="inputMsg"
+                    ref={curMsgRef}
+                    type="text"
+                    autoComplete="off"
+                    placeholder="Type a message"
+                    className="main-part-right-msgbox-typemsg"
+                    style={{paddingRight:"110px"}}
+                  />
+                  <span 
+                  style={{
+                    position:"absolute", 
+                    right:"25px", 
+                    marginBottom:"auto",
+                    marginTop:"auto", 
+                    display:"flex", 
+                    alignItems:"center",
+                  }}>
+                    <img src={emoji} height="20px" width="20px" alt="emoji" 
+                      style={{cursor:"pointer"}} 
+                      onClick={()=>{
+                        console.log("clicked");
+                        setShowEmojiPicker(!showEmojiPicker);
+                      }}
+                    />
+                    {/* <img src={upload} height="20px" width="20px" alt="emoji" 
+                      style={{marginLeft:"10px", cursor:"pointer"}} 
+                    /> */}
+                    <img src={send} height="20px" width="20px" alt="emoji" onClick={addMsg} 
+                      style={{marginLeft:"10px", cursor:"pointer"}} 
+                    />
+                  </span>
+              </div>
             </div>
           </section>
         </main>
+        {showEmojiPicker && <NimblePicker title="Pick Emoji" set='google' data={data} onSelect={handleOnSelectEmoji} 
+          style={{ position: 'absolute', bottom: '70px', right: '40px' }} 
+        />}
       </div>
     </>
   );

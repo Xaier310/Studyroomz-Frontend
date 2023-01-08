@@ -14,41 +14,140 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { useAuth0 } from "@auth0/auth0-react";
 import { AppContext } from "./App";
+import Loading from "./Loading";
+import { stepConnectorClasses } from "@mui/material";
 // import axios from axios;
 const axios = require('axios').default;
 
-console.log(process.env.REACT_APP_BackendAPI);
-
 const Home = () => {
+  
   const {
     socket,
     curUser,
-    setIsRoomIdValid,
-    isWD,
-    setIsWD,
-    isAD,
-    setIsAD,
-    isML,
-    setIsML,
-    curRoomId,
-    setCurRoomId,
-    inputRoomId,
-    setInputRoomId,
     setPrevRoomId,
-    sets, 
-    setSets
+    setIsRoomIdValid,
+    isWD, setIsWD,
+    isAD, setIsAD,
+    isML, setIsML,
+    curRoomId, setCurRoomId,
+    inputRoomId, setInputRoomId,
+    popupItems, setPopupItems,
+    computationLoading, setComputationLoading
   } = useContext(AppContext);
-  const [noOfPartInCR, setNoOfPartInCR] = useState([0, 0, 0, 0, 0]);
+
+  const [noOfPartInCR, setNoOfPartInCR] = useState([]);
   const [isPopup, setIsPopup] = useState(false);
   const { user, isAuthenticated, isLoading } = useAuth0();
   const history = useHistory();
   const capacity = 50;
   const roomsPerTopic = 10;
 
-  function randomStr() {
+
+
+  
+  /*********************** UseEffects ********************************* */
+
+  useEffect(() => {
+    AOS.init({ duration: 1300, disable: window.innerWidth < 825 });
+    AOS.refresh();
+  }, []);
+
+  useEffect(()=>{
+    console.log("it ran...");
+    if(!window.location.href.includes("/chat-room") && curRoomId && curRoomId!==""){
+      console.log("it ran2...");
+      socket.emit("remove_me",curRoomId);
+      setCurRoomId(null);
+    }
+  },[socket, window.location.href]);
+
+  useEffect(()=>{
+    const popupItemsTemp = [];
+    for (let i = 0; i < roomsPerTopic; i++) {
+      if (isML)
+        popupItemsTemp.push(
+          isAuthenticated ? (
+            <a
+              key={i}
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                joinCustomRoom(i + 1);
+                noOfPartInCR[i] <= capacity && setIsML(false);
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          ) : (
+            <a
+              key={i}
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                alertFnForPopup();
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          )
+        );
+      else if (isWD)
+        popupItemsTemp.push(
+          isAuthenticated ? (
+            <a
+              key={i}
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                joinCustomRoom(i + 1);
+                noOfPartInCR[i] <= capacity && setIsWD(false);
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          ) : (
+            <a
+              key={i}
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                alertFnForPopup();
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          )
+        );
+      else if (isAD)
+        popupItemsTemp.push(
+          isAuthenticated ? (
+            <a
+              key={i}
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                joinCustomRoom(i + 1);
+                noOfPartInCR[i] <= capacity && setIsAD(false);
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          ) : (
+            <a
+              key={i}
+              className="no-of-rooms-row-room-cc"
+              onClick={() => {
+                alertFnForPopup();
+              }}
+            >
+              {noOfPartInCR[i]}
+            </a>
+          )
+        );
+    }
+    setPopupItems([...popupItemsTemp]);
+  },[noOfPartInCR]);
+
+
+  /***********************Functions **************************************** */
+  const randomStr = () => {
     var ans = "";
-    const arr =
-      "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const arr = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     for (var i = 6; i > 0; i--) {
       ans += arr[Math.floor(Math.random() * arr.length)];
     }
@@ -56,13 +155,9 @@ const Home = () => {
     return ans+f;
   }
 
-  useEffect(()=>{
-    socket.emit("new emit");
-  },[])
-
-  const getCustomStats = async (str) => {
-    await socket.emit("custom_stats", str);
-    socket.on("your_custom_stats", (lengtharray) => {
+  const getCustomStats = (str) => {
+    socket.emit("custom_stats_no", {roomStr:str, roomsPerTopic});
+    socket.on("custom_stats_no", (lengtharray) => {
       setNoOfPartInCR(lengtharray);
     });
   };
@@ -70,77 +165,51 @@ const Home = () => {
 
   const createRoom = (e) => {
     e.preventDefault();
-    console.log("createRoom fn ran...");
     var RoomId = randomStr();
-    if (curUser) {
-      var obj = {
-        roomId: RoomId,
-        nickname: curUser.nickname,
-        username: curUser.email,
-        type: "newRoom",
-      };
+    if (!curUser) return alertfn();
+    console.log("create room ran...");
+    socket.emit("join_room", { roomId: RoomId, userInfo:curUser, isOldRoom:false }, ({ error })=>{
+      if(error) return alertfn(error);
       setCurRoomId(RoomId);
       sessionStorage.setItem("roomid",RoomId);
-      socket.emit("join_room", obj);
       setPrevRoomId(RoomId);
-      socket.emit("addUser", curUser);
       history.push(`/chat-room/${RoomId}`);
-    } 
-    else {
-      alertfn();
-    }
+    });
   };
 
   const joinRoom = (e) => {
-    console.log("joinRoom fn ran...");
     e.preventDefault();
-    if (curUser && inputRoomId && inputRoomId !== "") {
-      var obj = {
-        roomId: inputRoomId,
-        nickname: curUser.nickname,
-        username: curUser.email,
-        type: "oldRoom",
-      };
-      socket.emit("join_room", obj);
-      socket.off("isJoined").on("isJoined", (isValid) => {
-        if (isValid) {
-          setCurRoomId(inputRoomId);
-          sessionStorage.setItem("roomid",inputRoomId);
-          setPrevRoomId(inputRoomId);
-          socket.emit("addUser", curUser);
-          history.push(`/chat-room/${inputRoomId}`);
-        } else {
-          setIsRoomIdValid(false);
-          alertfn(null, "Invalid Room Id");
-        }
-      });
-    } else {
-      alertfn(null, "Invalid Room Id");
-    }
+    console.log("joinRoom fn ran...");
+    if (!(curUser && inputRoomId && inputRoomId !== "")) return alertfn(null, "Invalid Room Id");
+    socket.emit("join_room", {roomId:inputRoomId, userInfo:curUser, isOldRoom:true}, ({ error })=>{
+      if(error){ 
+        console.log("error : ",error);
+        // setIsRoomIdValid(false);
+        return alertfn(null, error);
+      }
+      setCurRoomId(inputRoomId);
+      sessionStorage.setItem("roomid",inputRoomId);
+      setPrevRoomId(inputRoomId);
+      history.push(`/chat-room/${inputRoomId}`);
+    });
   };
 
   const joinCustomRoom = (number) => {
-    if (noOfPartInCR[number - 1] < capacity) {
-      var roomid = "";
-      if (isWD) roomid = `webroom${number}`;
-      else if (isAD) roomid = `androidroom${number}`;
-      else if (isML) roomid = `mlroom${number}`;
+    console.log("joinCustomRoom ran...");
+    if (noOfPartInCR[number - 1] >= capacity) return alertFnForPopup("This Room is already full try another one");
+    var roomid = "";
+    if (isWD) roomid = `webroom${number}`;
+    else if (isAD) roomid = `androidroom${number}`;
+    else if (isML) roomid = `mlroom${number}`;
+    socket.emit("join_room", { roomId:roomid, userInfo:curUser, isOldRoom:false }, ({ error })=>{
+      if(error) return alertFnForPopup(error);
       setCurRoomId(roomid);
-      sessionStorage.setItem("roomid",roomid);
       setPrevRoomId(roomid);
-      socket.emit("join_custom_room", roomid);
-      socket.emit("addUser", curUser);
+      sessionStorage.setItem("roomid",roomid);
       history.push(`/chat-room/${roomid}`);
-    } else {
-      alertFnForPopup("This Room is already full try another one");
-    }
+    });
   };
-
-  useEffect(() => {
-    AOS.init({ duration: 1300, disable: window.innerWidth < 825 });
-    AOS.refresh();
-  }, []);
-
+  
   const alertfn = (e = null, str = "Please login first") => {
     var ele = document.querySelector(".alert");
     if (ele) ele.innerText = str;
@@ -157,83 +226,12 @@ const Home = () => {
   };
 
 
-  const popupItems = [];
-  // useEffect(()=>{
-    for (let i = 0; i < roomsPerTopic; i++) {
-      if (isML)
-        popupItems.push(
-          isAuthenticated ? (
-            <a
-              className="no-of-rooms-row-room-cc"
-              onClick={() => {
-                joinCustomRoom(i + 1);
-                noOfPartInCR[i] <= capacity && setIsML(false);
-              }}
-            >
-              {noOfPartInCR[i]}
-            </a>
-          ) : (
-            <a
-              className="no-of-rooms-row-room-cc"
-              onClick={() => {
-                alertFnForPopup();
-              }}
-            >
-              {noOfPartInCR[i]}
-            </a>
-          )
-        );
-      // participantsInCR.MlRoom[`mlroom${i+1}`]
-      else if (isWD)
-        popupItems.push(
-          isAuthenticated ? (
-            <a
-              className="no-of-rooms-row-room-cc"
-              onClick={() => {
-                joinCustomRoom(i + 1);
-                noOfPartInCR[i] <= capacity && setIsWD(false);
-              }}
-            >
-              {noOfPartInCR[i]}
-            </a>
-          ) : (
-            <a
-              className="no-of-rooms-row-room-cc"
-              onClick={() => {
-                alertFnForPopup();
-              }}
-            >
-              {noOfPartInCR[i]}
-            </a>
-          )
-        );
-      // participantsInCR.WebRoom[`webroom${i+1}`]
-      else if (isAD)
-        popupItems.push(
-          isAuthenticated ? (
-            <a
-              className="no-of-rooms-row-room-cc"
-              onClick={() => {
-                joinCustomRoom(i + 1);
-                noOfPartInCR[i] <= capacity && setIsAD(false);
-              }}
-            >
-              {noOfPartInCR[i]}
-            </a>
-          ) : (
-            <a
-              className="no-of-rooms-row-room-cc"
-              onClick={() => {
-                alertFnForPopup();
-              }}
-            >
-              {noOfPartInCR[i]}
-            </a>
-          )
-        );
-      // participantsInCR.AndroidRoom[`androidroom${i+1}`]
-    }
-  // },[isML, isAD, isWD]);
+
+  /************* Testing Stuff ****************************/
+  // if(computationLoading){
+  //   console.log("loading...");
+  //   return (<Loading />);
+  // }
 
   return (
     <>
@@ -263,34 +261,35 @@ const Home = () => {
          }}
        >
           <motion.div
-                  initial={{
-                    y:"-50vh",  
-                    opacity:0                  
-                  }}
-                  animate={{
-                    y:"0",
-                    transition:{
-                     duration:0.3,
-                    },
-                    opacity:1
-                  }}
-                  exit={{
-                    y:"65vh",
-                    opacity:0 
-                  }}
-          className="popup-roomid-input-bg"
-          style={{
-            marginLeft:"1rem",
-            marginRight:"1rem"
-          }}
+            initial={{
+              y:"-50vh",  
+              opacity:0                  
+            }}
+            animate={{
+              y:"0",
+              transition:{
+               duration:0.3,
+              },
+              opacity:1
+            }}
+            exit={{
+              y:"65vh",
+              opacity:0 
+            }}
+            className="popup-roomid-input-bg"
+            style={{
+              marginLeft:"1rem",
+              marginRight:"1rem"
+            }}
           >
             <h1>Enter Room ID</h1>
             <div className="popup-roomid-input-bg-extra">
               <input
                 placeholder="Enter room id . . ."
                 type="text"
+                autoFocus
                 onChange={(event) => {
-                  setInputRoomId(event.target.value);
+                  setInputRoomId(event.target.value.trim());
                 }}
               />
               <button
@@ -410,8 +409,6 @@ const Home = () => {
               }
           </AnimatePresence>
           <section className="main-part-2" data-aos="fade-up" data-aos-offset="200">
-            {/* <div className="main-part-2-left"> */}
-            {/* </div> */}
             <div className="main-part-2-right" id="rooms">
               <div className="sec-img">
             <img className="main-part-2-left-img" src={secondImg} alt="img not available" />

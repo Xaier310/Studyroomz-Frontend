@@ -8,15 +8,13 @@ import {
 import RealChat from "./RealChat";
 import "./css/Home.css";
 import Home from "./Home";
-import io from "socket.io-client";
+import { io } from "socket.io-client";
 import Loading from "./Loading";
 import About from "./About";
 import ProtectedRoute from "./ProtectedRoute";
 import NotFound from "./NotFound"
 import { useAuth0 } from "@auth0/auth0-react";
 export const AppContext = createContext(null);
-
-// const socket = io("http://localhost:3001");
 
 function App() {
   const [curUser, setCurUser] = useState(null);
@@ -34,55 +32,43 @@ function App() {
   const [sets, setSets] = useState(new Set());
   const [msgList, setMsgList] = useState([]);
   const { user, isAuthenticated, isLoading } = useAuth0();
+  const [popupItems, setPopupItems] = useState([]);
+  const [computationLoading, setComputationLoading] = useState(false);
   
   useEffect(() => {
     user && setCurUser(user);
   }, [user]);
-
-  // console.log("User: ",user, "isAuth: ", isAuthenticated,"isLoad: ",isLoading);
   
   useEffect(() => {
     setSocket(
-      // io("https://studyroomz.herokuapp.com/", {
       io(`${process.env.REACT_APP_BackendAPI}`, {
         transports: ["websocket"],
       })
-      );
-    }, []);
- 
-    
+    );
+  }, []);
 
-    return (
-      <AppContext.Provider
-      value={{
-        socket,
-        curUser,
-        isRoomIdValid,
-        setIsRoomIdValid,
-        isLoggedIn,
-        setIsLoggedIn,
-        isWD,
-        setIsWD,
-        isAD,
-        setIsAD,
-        isML,
-        setIsML,
-        curRoomId,
-        setCurRoomId,
-        isNewRoom,
-        setIsNewRoom,
-        allParticipants,
-        setAllParticipants,
-        inputRoomId,
-        setInputRoomId,
-        prevRoomId,
-        setPrevRoomId,
-        msgList, 
-        setMsgList,
-        sets, 
-        setSets
-      }}
-      >
+ 
+  const value = {
+    socket,
+    curUser,
+    isRoomIdValid, setIsRoomIdValid,
+    isLoggedIn, setIsLoggedIn,
+    isWD, setIsWD,
+    isAD, setIsAD,
+    isML, setIsML,
+    curRoomId, setCurRoomId,
+    isNewRoom, setIsNewRoom,
+    allParticipants, setAllParticipants,
+    inputRoomId, setInputRoomId,
+    prevRoomId, setPrevRoomId,
+    msgList, setMsgList,
+    sets, setSets,
+    popupItems, setPopupItems,
+    computationLoading, setComputationLoading
+  }  
+
+  return (
+    <AppContext.Provider value={value} >
       <Router>
         <Switch>
           <Route exact path="/home">
@@ -104,9 +90,6 @@ function App() {
 }
 
 export default App;
-
-
-//  "proxy": "https://studyroomz.herokuapp.com/",
 
 
 

@@ -17,12 +17,9 @@ function Navbar() {
     curRoomId,
   } = useContext(AppContext);
   const [isNavPopup, setIsNavPopup] = useState(false);
-  useEffect(() => {
-    AOS.init({ duration: 1300,disable: window.innerWidth < 825 });
-    AOS.refresh();
-  }, []);
   const { isAuthenticated } = useAuth0();
   let history = useHistory();
+
   
   const prevChatRoom = (e) => {
     e.preventDefault();
@@ -52,68 +49,69 @@ function Navbar() {
     }
   };
 
-const navPopupFn=()=>{
-  let temp = isNavPopup;
-  setIsNavPopup(!isNavPopup);
-  if(!temp){
-    let ele = document.querySelector(".navbar-child-3");
-    if(ele){
-      ele.classList.add("navbar-popup-overlay-button-onclick");
+  const navPopupFn=()=>{
+    let temp = isNavPopup;
+    setIsNavPopup(!isNavPopup);
+    if(!temp){
+      let ele = document.querySelector(".navbar-child-3");
+      if(ele){
+        ele.classList.add("navbar-popup-overlay-button-onclick");
+      }
+      document.getElementById("black-overlay").classList.add("black-overlay");
+      document.getElementById("root").classList.add("noscroll");
     }
-    document.getElementById("black-overlay").classList.add("black-overlay");
-    document.getElementById("root").classList.add("noscroll");
-  }
-  else{
-    let ele = document.querySelector(".navbar-child-3");
-    if(ele){
-      ele.classList.remove("navbar-popup-overlay-button-onclick");
+    else{
+      let ele = document.querySelector(".navbar-child-3");
+      if(ele){
+        ele.classList.remove("navbar-popup-overlay-button-onclick");
+      }
+      document.getElementById("black-overlay").classList.remove("black-overlay");
+      document.getElementById("root").classList.remove("noscroll");
     }
-    document.getElementById("black-overlay").classList.remove("black-overlay");
-    document.getElementById("root").classList.remove("noscroll");
   }
-}
-window.addEventListener('resize', closePopup);
-function closePopup(){
-  setIsNavPopup(false);
-}
+  
+  window.addEventListener('resize', closePopup);
+  function closePopup(){
+    setIsNavPopup(false);
+  }
+
+  /**************TEST STUFF****************************** */
+  const ActionsOnExit = (redirect_url) => {
+    history.push(redirect_url);
+    socket.emit("remove_me", curRoomId);
+    setCurRoomId("");
+    sessionStorage.setItem("roomid","");
+  }
+
+
   return (
     <>
     <div className="navbar">
       <div className="navbar-child-1">
-        <div className="navbar-logo">
+        <div className="navbar-logo" 
+        onClick={()=>ActionsOnExit("/home")}
+        >
           <span className="navbar-logo-dot"></span>
-          <h4
-            onClick={() => {
-              socket.emit("remove_me", curRoomId);
-              history.push("/");
-            }}
-            className="navbar-logo-text"
-          >
+          <h4 className="navbar-logo-text">
             StudyRoomz
           </h4>
         </div>
       </div>
       <ul className="navbar-items">
-          <li className="navbar-item-1 navbar-item-cc">
-            <a
-              onClick={() => {
-                socket.emit("remove_me", curRoomId);
-                history.push("/home");
-              }}
-            >
+          <li className="navbar-item-1 navbar-item-cc" 
+          onClick={()=>ActionsOnExit("/home")}
+          >
+            <a>
               Home
             </a>
           </li>
           <li className="navbar-item-2 navbar-item-cc">
             <a onClick={prevChatRoom}>Lastroom</a>
           </li>
-          <li className="navbar-item-3 navbar-item-cc">
-            <a
-              onClick={() => {
-                socket.emit("remove_me", curRoomId);
-                history.push("/about_us");
-              }}
-            >
+          <li className="navbar-item-3 navbar-item-cc" 
+          onClick={()=>ActionsOnExit("/about_us")}
+          >
+            <a>
               About
             </a>
           </li>
