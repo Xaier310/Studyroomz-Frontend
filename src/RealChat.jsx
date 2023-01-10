@@ -266,7 +266,7 @@ const testfn = (e) => {
           <span className="users-temp users-button" onClick={showUsers}><i className="fas fa-angle-double-left"></i></span>
             <div className="main-part-left-profile">
               <div className="main-part-left-profile-img">
-                <img src={user.picture} alt="" referrerpolicy="no-referrer" />
+                <img src={user.picture} alt=""  />
               </div>
               <h4 className="main-part-left-profile-name">{user.name}</h4>
               <span className="main-part-left-profile-name-setting">
@@ -288,7 +288,6 @@ const testfn = (e) => {
                         className="main-part-left-participants-participant-cc-img"
                         src={user.picture}
                         alt=""
-                        referrerpolicy="no-referrer"
                       />
                       <h4 className="main-part-left-participants-participant-cc-name">
                         {user.name}
@@ -305,7 +304,7 @@ const testfn = (e) => {
           <section className="main-part-left">
             <div className="main-part-left-profile">
               <div className="main-part-left-profile-img">
-                <img src={user.picture} alt="" referrerpolicy="no-referrer" />
+                <img src={user.picture} alt="" />
               </div>
               <h4 className="main-part-left-profile-name">{user.name}</h4>
               <span className="main-part-left-profile-name-setting">
@@ -325,7 +324,7 @@ const testfn = (e) => {
                         className="main-part-left-participants-participant-cc-img"
                         src={user.picture}
                         alt=""
-                        referrerpolicy="no-referrer"
+                        
                       />
                       <h4 className="main-part-left-participants-participant-cc-name">
                         {user.name}
