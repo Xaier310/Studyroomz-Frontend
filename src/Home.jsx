@@ -228,10 +228,6 @@ const Home = () => {
 
 
   /************* Testing Stuff ****************************/
-  // if(computationLoading){
-  //   console.log("loading...");
-  //   return (<Loading />);
-  // }
 
   return (
     <>
@@ -403,7 +399,7 @@ const Home = () => {
                       ></i>
                     </div>
                     <br />
-                    <p className="alertForPopup"></p>
+                    <p className="alertForPopup" style={{flex:1,flexBasis:"100%",textAlign:"center"}}></p>
                   </motion.div>
                 </motion.div>
               }
